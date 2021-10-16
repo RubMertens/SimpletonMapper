@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpletonMap.Tests", "Simpl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpletonMap.Performance", "SimpletonMap.Performance\SimpletonMap.Performance.csproj", "{B4A6A191-B495-4A3C-84CA-ABE7055A8EF0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simpleton.SourceGenerator", "Simpleton.SourceGenerator\Simpleton.SourceGenerator.csproj", "{521B873C-E380-485A-8F78-19EB12811677}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpletonMap.SourceGenerator", "SimpletonMap.SourceGenerator\SimpletonMap.SourceGenerator.csproj", "{521B873C-E380-485A-8F78-19EB12811677}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

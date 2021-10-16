@@ -1,7 +1,9 @@
 ﻿using System;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
+using SimpletonMap.SourceGenerator;
 using SimpletonMap.V4;
+using SimpletonMap.V5;
 
 namespace SimpletonMap.Performance
 {
@@ -65,6 +67,12 @@ namespace SimpletonMap.Performance
             var personViewModel = _ilMapper
                 .Map<PersonViewModel>(_fromPerson);
         }
+
+        [Benchmark]
+        public void SourceGen()
+        {
+            var personViewModel = _fromPerson.ToPersonViewModel();
+        }
     }
     
     public class Person  {
@@ -73,10 +81,11 @@ namespace SimpletonMap.Performance
         public string MiddleName { get; set; }
     }
 
+    [MappedFrom(typeof(Person))]
     public class PersonViewModel
     {
         public string FirstName { get; set; }
-        [MapsFrom(nameof(Person.LastName))]
+        // [MapsFrom(nameof(Person.LastName))]
         public string FamilyName { get; set; }
         public string OptionalName { get; set; }
     }

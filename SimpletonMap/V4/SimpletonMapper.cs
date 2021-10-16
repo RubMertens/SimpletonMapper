@@ -328,8 +328,6 @@ namespace SimpletonMap_Copy {{
                     return new RoslynTypeMapper(typeMapping);
                 case MappingStrategy.Il:
                     return new ILTypeMapper(typeMapping);
-                    
-                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }

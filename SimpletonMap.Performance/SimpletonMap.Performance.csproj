@@ -10,6 +10,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\SimpletonMap.SourceGenerator\SimpletonMap.SourceGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
       <ProjectReference Include="..\SimpletonMap\SimpletonMap.csproj" />
     </ItemGroup>
 
