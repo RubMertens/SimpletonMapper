@@ -4,7 +4,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
-namespace Simpleton.SourceGenerator
+namespace SimpletonMap.SourceGenerator
 {
     public class SourceBuilder
     {

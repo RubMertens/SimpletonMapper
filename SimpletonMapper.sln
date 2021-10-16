@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpletonMap.Performance", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpletonMap.SourceGenerator", "SimpletonMap.SourceGenerator\SimpletonMap.SourceGenerator.csproj", "{521B873C-E380-485A-8F78-19EB12811677}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpletonMap.SourceGenerator.Core", "SimpletonMap.SourceGenerator.Core\SimpletonMap.SourceGenerator.Core.csproj", "{84CC907B-9B10-4717-8ECA-82724FC7E9C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{521B873C-E380-485A-8F78-19EB12811677}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{521B873C-E380-485A-8F78-19EB12811677}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{521B873C-E380-485A-8F78-19EB12811677}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84CC907B-9B10-4717-8ECA-82724FC7E9C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84CC907B-9B10-4717-8ECA-82724FC7E9C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84CC907B-9B10-4717-8ECA-82724FC7E9C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84CC907B-9B10-4717-8ECA-82724FC7E9C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

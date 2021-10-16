@@ -1,6 +1,6 @@
 using System;
 
-namespace SimpletonMap.V5
+namespace SimpletonMap.SourceGenerator
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class MappedFromAttribute: Attribute

@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 
-namespace Simpleton.SourceGenerator
+namespace SimpletonMap.SourceGenerator
 {
     public struct MatchingProperties
     {

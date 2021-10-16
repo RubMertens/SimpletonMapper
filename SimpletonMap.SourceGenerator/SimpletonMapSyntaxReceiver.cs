@@ -1,8 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SimpletonMap.V5;
 
-namespace Simpleton.SourceGenerator
+namespace SimpletonMap.SourceGenerator
 {
     public class SimpletonMapSyntaxReceiver : ISyntaxReceiver
     {
@@ -14,7 +13,7 @@ namespace Simpleton.SourceGenerator
         /// <param name="syntaxNode"></param>
         public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
         {
-            if (syntaxNode is not ClassDeclarationSyntax cds) return;
+            if (!(syntaxNode is ClassDeclarationSyntax cds)) return;
             if (!cds.HasAttribute(nameof(MappedFromAttribute))) return;
             ClassWithAttribute = cds;
         }

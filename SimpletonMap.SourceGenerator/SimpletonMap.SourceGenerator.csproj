@@ -1,8 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net5.0</TargetFramework>
-        <RootNamespace>Simpleton.SourceGenerator</RootNamespace>
+        <TargetFramework>netstandard2.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
@@ -10,7 +9,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\SimpletonMap\SimpletonMap.csproj" />
+        <ProjectReference Include="..\SimpletonMap.SourceGenerator.Core\SimpletonMap.SourceGenerator.Core.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\SimpletonMap.SourceGenerator.Core\SimpletonMap.SourceGenerator.Core.csproj" />
     </ItemGroup>
+
 
 </Project>

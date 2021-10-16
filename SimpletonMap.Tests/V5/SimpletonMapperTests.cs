@@ -1,6 +1,5 @@
 using NUnit.Framework;
 using SimpletonMap.SourceGenerator;
-using SimpletonMap.V5;
 
 namespace SimpletonMap.Tests.V5
 {
@@ -58,6 +57,35 @@ namespace SimpletonMap.Tests.V5
             var toPerson = new PersonViewModel().From(fromPerson);
 
             Assert.AreEqual(fromPerson.FirstName, toPerson.FirstName);
+        }
+
+        [Test]
+        public void ShouldGenerate_To_WithAttributeMappingCorrectly()
+        {
+            var fromPerson = new Person()
+            {
+                FirstName = "John",
+                LastName = "Beton",
+                MiddleName = "Mixer"
+            };
+            var toPerson = fromPerson.ToPersonViewModel();
+            
+            Assert.AreEqual(fromPerson.LastName, toPerson.FamilyName);
+        }
+        
+        
+        [Test]
+        public void ShouldGenerate_From_AndMapAttributeCorrectly()
+        {
+            var fromPerson = new Person()
+            {
+                FirstName = "John",
+                LastName = "Beton",
+                MiddleName = "Mixer"
+            };
+            var toPerson = new PersonViewModel().From(fromPerson);
+
+            Assert.AreEqual(fromPerson.LastName, toPerson.FamilyName);
         }
         
         // [Test]

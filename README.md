@@ -13,15 +13,19 @@ Build in several versions
 # Latest benchmark results
 
 ``` ini
+
 BenchmarkDotNet=v0.13.1, OS=Windows 10.0.19043.1288 (21H1/May2021Update)
 Intel Core i5-4590 CPU 3.30GHz (Haswell), 1 CPU, 4 logical and 4 physical cores
 .NET SDK=5.0.401
   [Host]     : .NET 5.0.10 (5.0.1021.41214), X64 RyuJIT
   DefaultJob : .NET 5.0.10 (5.0.1021.41214), X64 RyuJIT
+
+
 ```
-|     Method |       Mean |      Error |     StdDev |
-|----------- |-----------:|-----------:|-----------:|
-| Reflection | 886.830 ns |  4.1215 ns |  3.8553 ns |
-|     Roslyn | 578.621 ns |  2.8293 ns |  2.6465 ns |
-|         Il | 597.520 ns | 11.9792 ns | 11.7651 ns |
-|  SourceGen |   9.789 ns |  0.0754 ns |  0.0705 ns |
+|                              Method |        Mean |    Error |   StdDev |
+|------------------------------------ |------------:|---------:|---------:|
+|                          Reflection | 1,179.53 ns | 6.784 ns | 6.346 ns |
+|                              Roslyn |   585.85 ns | 3.702 ns | 3.463 ns |
+|                                  Il |   586.23 ns | 2.330 ns | 2.066 ns |
+|      SourceGen_From_ToToModelMethod |    11.73 ns | 0.069 ns | 0.065 ns |
+| SourceGen_NewTo_FromFromModelMethod |    10.92 ns | 0.043 ns | 0.040 ns |

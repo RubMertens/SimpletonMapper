@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Simpleton.SourceGenerator
+namespace SimpletonMap.SourceGenerator
 {
     public static class RoslynHelpers
     {

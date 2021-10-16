@@ -2,12 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection.Metadata;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SimpletonMap.V5;
 
-namespace Simpleton.SourceGenerator
+namespace SimpletonMap.SourceGenerator
 {
     [Generator]
     public class SimpletonMapperSourceGenerator : ISourceGenerator
@@ -30,7 +28,6 @@ namespace Simpleton.SourceGenerator
             ITypeSymbol fromTypeSymbol,
             ITypeSymbol toTypeSymbol, INamedTypeSymbol mappedFromAttributeSymbol)
         {
-            Debugger.Launch();
             var fromProperties = fromTypeSymbol.GetPropertySymbols().ToArray();
             var toProperties = toTypeSymbol.GetPropertySymbols().ToArray();
 
@@ -46,19 +43,28 @@ namespace Simpleton.SourceGenerator
                         )
                         .Where(to =>
                         {
-                            var mappedFromAttributeData =  to.GetAttributes()
-                                .FirstOrDefault(a => a.AttributeClass?.Equals(mappedFromAttributeSymbol) ?? false);
-                            var arg = mappedFromAttributeData.ConstructorArguments.First();
-                            var fromType = arg.Type;
-                            return fromType.Equals(fromTypeSymbol);
+                            var mappedFromAttributeData = to.GetAttributes()
+                                .FirstOrDefault(a =>
+                                    //the actual equality comparison doesn't seem to work, but the name(space)s are the same.
+                                    //use that to compare instead ¯\_(ツ)_/¯
+                                    a.AttributeClass.ToString().Equals(mappedFromAttributeSymbol.ToString(),
+                                        StringComparison.InvariantCulture)
+                                );
+                            if (mappedFromAttributeData == null) return false;
+                            var configuredMapFromPropertyName = mappedFromAttributeData
+                                //attribute has a constructor
+                                .ConstructorArguments
+                                //with the first arguement = to the name we expect to map to
+                                .First()
+                                .Value;
+                            return from.Name.Equals(configuredMapFromPropertyName);
                         })
-                        
-                        .Select(to =>  new MatchingProperties()
+                        .Select(to => new MatchingProperties()
                         {
                             From = from,
                             To = to
                         });
-                }); 
+                }).ToArray();
         }
 
         private static IEnumerable<MatchingProperties> GetMatchingPropertiesBasedOnNames(
@@ -97,30 +103,45 @@ namespace Simpleton.SourceGenerator
         {
             var receiver = context.SyntaxReceiver as SimpletonMapSyntaxReceiver;
             if (receiver?.ClassWithAttribute == null) return;
-            
+
+
             var mappedFromAttribute = receiver.ClassWithAttribute.GetAttributeSyntax(nameof(MappedFromAttribute));
-            
+
             var fromTypeSyntax = GetTypeSyntaxFromMappedFromAttribute(mappedFromAttribute);
+
             var semanticModel = context.Compilation.GetSemanticModel(receiver.ClassWithAttribute.SyntaxTree);
-            
+
+            // var mappedFromAttributeTypeSymbol = semanticModel.GetTypeInfo(mappedFromAttribute).Type
+            //     as INamedTypeSymbol
+            //     ; 
+
+            // var mapsFromAttributeTypeSymbol = context.Compilation.GetTypeByMetadataName("SimpletonMap.V5.MapsFromAttribute");
+            var mapsFromAttributeTypeSymbol = context
+                .Compilation
+                .GetTypeByMetadataName(typeof(MapsFromAttribute)?.FullName ?? "");
+
             var fromTypeInfo = semanticModel
-                .GetTypeInfo(fromTypeSyntax)
-                .Type
+                    .GetTypeInfo(fromTypeSyntax)
+                    .Type
                 ;
-            
+
             var toTypeInfo = semanticModel
-                .GetDeclaredSymbol(receiver.ClassWithAttribute)
+                    .GetDeclaredSymbol(receiver.ClassWithAttribute)
                 as INamedTypeSymbol;
 
-            var matchingPropertiesByName = 
+            var matchingPropertiesByName =
                 GetMatchingPropertiesBasedOnNames(fromTypeInfo, toTypeInfo);
-            // var matchingPropertiesByAttribute =
-            //     GetMatchingPropertiesByAttribute(fromTypeInfo, toTypeInfo, mappedFromAttributeSymbol);
-
-            var sourceBuilder = new SourceBuilder(fromTypeInfo, toTypeInfo, matchingPropertiesByName);
+            var matchingPropertiesByAttribute =
+                GetMatchingPropertiesByAttribute(fromTypeInfo, toTypeInfo, mapsFromAttributeTypeSymbol);
+            // Debugger.Launch();
+            var sourceBuilder = new SourceBuilder(
+                fromTypeInfo,
+                toTypeInfo,
+                matchingPropertiesByName.Concat(matchingPropertiesByAttribute)
+            );
             var mapperClassSource =
                 sourceBuilder.GenerateSourceText();
-            
+
             context.AddSource($"{sourceBuilder.GeneratedClassName}.cs", mapperClassSource);
         }
     }

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Simpleton.SourceGenerator
+namespace SimpletonMap.SourceGenerator
 {
     public static class StringExtensions
     {
