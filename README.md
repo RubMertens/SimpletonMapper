@@ -1,5 +1,6 @@
 # SimpletonMapper
-A very simple demonstration of different ways to build a object to object mapper in dotnet
+A very simple demonstration of different ways to build a object to object mapper in dotnet.
+Mainly a way to explore different kinds of reflection!
 
 Build in several versions
 
