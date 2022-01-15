@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -8,15 +9,91 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace SimpletonMap.SourceGenerator
 {
     [Generator]
-    public class SimpletonMapperSourceGenerator : ISourceGenerator
+    public class SimpletonMapperSourceGenerator : IIncrementalGenerator
     {
-        public void Initialize(GeneratorInitializationContext context)
+        public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            //register a class to receive every syntax node
-            context.RegisterForSyntaxNotifications(() => new SimpletonMapSyntaxReceiver());
+            var classDeclarations = context.SyntaxProvider
+                .CreateSyntaxProvider(
+                    static (s, _) => IsSyntaxTargetForGeneration(s),
+                    static (syntaxContext, _) => GetSemanticTargetForGeneration(syntaxContext)
+                )
+                .Where(static classDeclarationSyntax => classDeclarationSyntax is not null);
+
+            var compilationAndClasses = context
+                .CompilationProvider
+                .Combine(classDeclarations.Collect());
+
+            context.RegisterSourceOutput(compilationAndClasses, static (spc, source) =>
+            {
+                var (com, classes) = source;
+                Execute(com, classes, spc);
+            });
         }
 
-        private static TypeSyntax GetTypeSyntaxFromMappedFromAttribute(AttributeSyntax syntax)
+        private static void Execute(Compilation compilation, ImmutableArray<ClassDeclarationSyntax> classes,
+            SourceProductionContext context)
+        {
+            if (classes.IsDefaultOrEmpty) return;
+            var distinctClasses = classes.Distinct();
+
+            foreach (var classWithAttribute in distinctClasses)
+            {
+                
+                var mappedFromAttribute = classWithAttribute.GetAttributeSyntax(nameof(MappedFromAttribute));
+                
+                var fromTypeSyntax = GetTypeSyntaxFromMappedFromAttribute(mappedFromAttribute);
+                
+                var semanticModel = compilation.GetSemanticModel(classWithAttribute.SyntaxTree);
+                
+                var mapsFromAttributeTypeSymbol = compilation
+                    .GetTypeByMetadataName(typeof(MapsFromAttribute)?.FullName ?? "");
+                
+                var fromTypeInfo = semanticModel
+                        .GetTypeInfo(fromTypeSyntax)
+                        .Type
+                    ;
+                
+                var toTypeInfo = semanticModel
+                        .GetDeclaredSymbol(classWithAttribute)
+                    as INamedTypeSymbol;
+                
+                var matchingPropertiesByName =
+                    GetMatchingPropertiesBasedOnNames(fromTypeInfo, toTypeInfo);
+                var matchingPropertiesByAttribute =
+                    GetMatchingPropertiesByAttribute(fromTypeInfo, toTypeInfo, mapsFromAttributeTypeSymbol);
+                // Debugger.Launch();
+                var sourceBuilder = new SourceBuilder(
+                    fromTypeInfo,
+                    toTypeInfo,
+                    matchingPropertiesByName.Concat(matchingPropertiesByAttribute)
+                );
+                var mapperClassSource =
+                    sourceBuilder.GenerateSourceText();
+                
+                context.AddSource($"{sourceBuilder.GeneratedClassName}.cs", mapperClassSource);
+            }
+        }
+
+        private static ClassDeclarationSyntax? GetSemanticTargetForGeneration(GeneratorSyntaxContext syntaxContext)
+        {
+            //IsSyntaxForGeneration guarantees it's a class
+            var cds = (ClassDeclarationSyntax)syntaxContext.Node;
+
+            return !cds.HasAttribute(nameof(MappedFromAttribute))
+                ? null
+                : cds;
+        }
+
+
+        public static bool IsSyntaxTargetForGeneration(SyntaxNode syntaxNode)
+        {
+            //fast but no allocations!
+            //gets called every time you make a change in the editor
+            return syntaxNode is ClassDeclarationSyntax cds && cds.AttributeLists.Count > 0;
+        }
+
+        private static TypeSyntax? GetTypeSyntaxFromMappedFromAttribute(AttributeSyntax syntax)
         {
             return syntax
                 .DescendantNodes().OfType<TypeOfExpressionSyntax>()
@@ -97,52 +174,6 @@ namespace SimpletonMap.SourceGenerator
                         });
                 }).ToList();
             return matchingProperties;
-        }
-
-        public void Execute(GeneratorExecutionContext context)
-        {
-            var receiver = context.SyntaxReceiver as SimpletonMapSyntaxReceiver;
-            if (receiver?.ClassWithAttribute == null) return;
-
-
-            var mappedFromAttribute = receiver.ClassWithAttribute.GetAttributeSyntax(nameof(MappedFromAttribute));
-
-            var fromTypeSyntax = GetTypeSyntaxFromMappedFromAttribute(mappedFromAttribute);
-
-            var semanticModel = context.Compilation.GetSemanticModel(receiver.ClassWithAttribute.SyntaxTree);
-
-            // var mappedFromAttributeTypeSymbol = semanticModel.GetTypeInfo(mappedFromAttribute).Type
-            //     as INamedTypeSymbol
-            //     ; 
-
-            // var mapsFromAttributeTypeSymbol = context.Compilation.GetTypeByMetadataName("SimpletonMap.V5.MapsFromAttribute");
-            var mapsFromAttributeTypeSymbol = context
-                .Compilation
-                .GetTypeByMetadataName(typeof(MapsFromAttribute)?.FullName ?? "");
-
-            var fromTypeInfo = semanticModel
-                    .GetTypeInfo(fromTypeSyntax)
-                    .Type
-                ;
-
-            var toTypeInfo = semanticModel
-                    .GetDeclaredSymbol(receiver.ClassWithAttribute)
-                as INamedTypeSymbol;
-
-            var matchingPropertiesByName =
-                GetMatchingPropertiesBasedOnNames(fromTypeInfo, toTypeInfo);
-            var matchingPropertiesByAttribute =
-                GetMatchingPropertiesByAttribute(fromTypeInfo, toTypeInfo, mapsFromAttributeTypeSymbol);
-            // Debugger.Launch();
-            var sourceBuilder = new SourceBuilder(
-                fromTypeInfo,
-                toTypeInfo,
-                matchingPropertiesByName.Concat(matchingPropertiesByAttribute)
-            );
-            var mapperClassSource =
-                sourceBuilder.GenerateSourceText();
-
-            context.AddSource($"{sourceBuilder.GeneratedClassName}.cs", mapperClassSource);
         }
     }
 }
